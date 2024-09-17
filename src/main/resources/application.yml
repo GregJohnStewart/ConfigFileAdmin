@@ -1,0 +1,12 @@
+
+quarkus:
+  log:
+    level: DEBUG
+
+configManagement:
+  locations:
+    - name: Main Properties
+      location: testConfig/props1.properties
+    - name: Secondary Props Dir
+      description: A set of config files.
+      location: testConfig/propsDir/

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en_us">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello {name ?: "Qute"}</title>
+    <link href="/res/lib/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/res/lib/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        #sidebar {
+        }
+    </style>
+</head>
+<body class="min-vh-100 vstack">
+
+<div class="container-fluid min-vh-100 d-flex flex-column" style="">
+    <div class="row flex-grow-1" style="">
+        <div class="col-2 card text-bg-secondary mb-0 min-vh-100" id="sidebar" style="border-radius: 0;">
+            <div class="card-header">
+                <h1 class="card-title">
+                    Config Admin
+                </h1>
+                <h2 class="card-subtitle h5">Available config files:</h2>
+            </div>
+            {!TODO:: make next bit scrollable !}
+            <ul class="list-group list-group-flush text-bg-secondary">
+                {#for curConfigFile in cdi:ConfigAdminService.getConfigFiles().values}
+                    <li class="list-group-item text-bg-secondary">
+                        <p class="card-text mb-1">
+                            <button
+                                    class="btn btn-outline-light"
+                                    hx-get="/config/form/{curConfigFile.getId()}"
+                                    hx-target="#mainContent"
+                                    hx-swap="innerHTML"
+                            >
+                                {curConfigFile.getTitle()}
+                            </button>
+                        </p>
+                        <p class="card-text mt-0 text-muted"><i>{curConfigFile.getLocation()}</i></p>
+                    </li>
+                {/for}
+            </ul>
+
+        </div>
+        <main class="col" id="mainContent">
+            Select a file on the left to get started.
+        </main>
+    </div>
+</div>
+
+<script src="/res/lib/jquery/3.7.1/jquery.min.js.js"></script>
+<script src="/res/lib/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/res/lib/htmx/2.0.2/htmx.min.js"></script>
+<script src="/res/lib/htmx/extensions/json-enc/2.0.1/json-enc.js"></script>
+<script>
+    function setUpdating(updatingCheckboxId) {
+        $(updatingCheckboxId).prop("checked", "true");
+    }
+
+    function checkUniqueKeys(keyInput) {
+        console.log("Checking for unique keys.");
+        let keyInputJq = $(keyInput);
+        let keyInputVal = keyInputJq.val();
+
+        let fail = false;
+        $("#mainContent").find(".key-input").each(function(){
+            let curInput = this;
+            let curInputJq = $(this);
+            if(keyInput === curInput){
+                return;
+            }
+            let curKey = curInputJq.val();
+
+            if(curKey === keyInputVal){
+                fail = true;
+            }
+        });
+        if(fail){
+            keyInput.setCustomValidity('Key already used. Must be unique.');
+        } else {
+            keyInput.setCustomValidity("");
+        }
+    }
+
+    function addConfigRow(newConfigDiv) {
+        let newConfigDivJq = $(newConfigDiv);
+        let newConfigLabelDivJq = $(newConfigDiv + "-label");
+
+        newConfigLabelDivJq.attr("hidden", false);
+        newConfigDivJq.append($(`
+                <div class="input-group mt-1">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeNewConfigRow(this);" onreset="removeNewConfigRow(this);">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <input type="text" class="form-control key-input" name="newKeys[]" title="Config Key" aria-label="Config Key" value="" placeholder="Key" required oninput="checkUniqueKeys(this);">
+                    <textarea class="form-control" name="newValues[]" title="Config Value" aria-label="Config Value" rows="1" placeholder="Value"></textarea>
+                </div>
+        `));
+    }
+
+    function removeNewConfigRow(removeButton) {
+        let removeButtonJq = $(removeButton);
+        let newConfigInputsJq = removeButtonJq.parent();
+        let newConfigRowsJq = newConfigInputsJq.parent();
+        let newConfigLabelDivJq = newConfigRowsJq.parent().find(".newConfigRowsLabel");
+
+        newConfigInputsJq.remove();
+
+        if (newConfigRowsJq.is(':empty')) {
+            console.log("Empty!")
+            newConfigLabelDivJq.hide();
+        } else {
+            console.log("Not empty!");
+        }
+    }
+</script>
+</body>
+</html>

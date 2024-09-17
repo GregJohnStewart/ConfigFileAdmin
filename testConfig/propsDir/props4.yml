@@ -1,0 +1,25 @@
+some:
+  nested:
+    value: 5
+a:
+  b:
+    c: foo
+myJoke: |
+  How did the programmer die in the shower?  A. He read the shampoo bottle instructions:  Lather. Rinse. Repeat.
+Fruits:
+- Apple
+- Orange
+- Pear
+floatingValue: 1
+stringValue1: '456'
+hexaNumber: 319137
+stringValue3: wer
+stringValue2: abc
+string1: |
+  Line1
+  line2
+  "line3"
+  line4
+octalNumber: 83
+integerValue: '2'
+booleanValue: true

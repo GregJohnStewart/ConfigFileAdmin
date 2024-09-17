@@ -1,0 +1,115 @@
+{#let configTracker = cdi:ConfigAdminService.getTracker(configId)}
+
+    <h3 class="h1">
+        {configTracker.getTitle()}
+    </h3>
+    <p class="text-muted">
+        <i>{configTracker.getPath()}</i>
+    </p>
+    {#if configTracker.getDescription().isPresent()}
+        <p>
+            {configTracker.getDescription().get()}
+        </p>
+    {/if}
+    <ul class="nav nav-tabs" id="tab-{configTracker.getId()}" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="valuesTab-{configTracker.getId()}" data-bs-toggle="tab"
+                    data-bs-target="#valuesTab-{configTracker.getId()}-pane"
+                    type="button" role="tab" aria-controls="valuesTab-{configTracker.getId()}-pane"
+                    aria-selected="true">
+                <i class="bi bi-list-columns-reverse"></i> Values
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="fileTab-{configTracker.getId()}" data-bs-toggle="tab"
+                    data-bs-target="#fileTab-{configTracker.getId()}-pane"
+                    type="button" role="tab" aria-controls="fileTab-{configTracker.getId()}-pane" aria-selected="false">
+                <i class="bi bi-file-earmark-text"></i> File
+            </button>
+        </li>
+    </ul>
+<div class="tab-content" id="tabContent-{configTracker.getId()}">
+    <div class="tab-pane fade show active" id="valuesTab-{configTracker.getId()}-pane" role="tabpanel"
+         aria-labelledby="valuesTab-{configTracker.getId()}"
+         tabindex="0">
+        <h4 class="mt-1">
+            Modify individual values:
+        </h4>
+        <form
+                hx-target="#mainContent"
+                hx-swap="innerHTML"
+                hx-patch="/config/form/{configTracker.getId()}/values"
+                hx-ext="json-enc"
+        >
+            <label class="form-label">Config values:</label>
+            {#for curProperty in configTracker.getProperties}
+                <div class="input-group mt-1">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" name="updateFlag[]" id="update-{curProperty.getKey()}-{configTracker.getId()}" value="{curProperty.getKey()}" aria-label="Update this row" title="Update this row">
+                    </div>
+
+                    <input type="checkbox" class="btn-check" value="{curProperty.getKey()}" name="removeKeys[]" id="removeButton-{curProperty.getKey()}" autocomplete="off">
+                    <label class="btn btn-outline-danger" for="removeButton-{curProperty.getKey()}" aria-label="Remove config entry" title="Remove config entry">
+                        <i class="bi bi-trash"></i>
+                    </label>
+
+                    <input type="text" class="form-control key-input" name="existingKeys[]" title="Config Key" aria-label="Config Key" value="{curProperty.getKey()}" oninput="setUpdating('#update-{curProperty.getKey()}-{configTracker.getId()}');" placeholder="Key" required readonly>
+
+                    <textarea class="form-control" name="existingValues[]" title="Config Value" aria-label="Config Value" oninput="setUpdating('#update-{curProperty.getKey()}-{configTracker.getId()}');" rows="1" placeholder="Value">{curProperty.getValue()}</textarea>
+                </div>
+            {/for}
+            <div id="newConfigRows-{configTracker.getId()}-label" class="mt-2 newConfigRowsLabel" hidden>
+                <label class="form-label">New Config:</label>
+            </div>
+            <div id="newConfigRows-{configTracker.getId()}">
+            </div>
+            <div class="d-grid gap-2 mt-2">
+                <button type="button" class="btn btn-outline-success" onclick="addConfigRow('#newConfigRows-{configTracker.getId()}');">
+                    <i class="bi bi-node-plus"></i> Add Value
+                </button>
+            </div>
+
+            <div class="d-grid gap-2 mt-4 mb-4">
+                <div class="btn-group" role="group" aria-label="Form buttons">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-floppy"></i> Update Values
+                    </button>
+                    <button type="reset" class="btn btn-outline-warning">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="fileTab-{configTracker.getId()}-pane" role="tabpanel"
+         aria-labelledby="fileTab-{configTracker.getId()}" tabindex="0">
+        <h4 class="mt-1">
+            Modify the whole file:
+        </h4>
+        <form
+                hx-target="#mainContent"
+                hx-swap="innerHTML"
+                hx-patch="/config/form/{configTracker.getId()}/content"
+                hx-ext="json-enc"
+        >
+            <div class="mb-3">
+                <label for="fileContent-{configTracker.getId()}" class="form-label">File Content:</label>
+                <textarea class="form-control" name="fileContent" rows="10" id="fileContent-{configTracker.getId()}">{configTracker.getContent()}</textarea>
+            </div>
+            <div class="d-grid gap-2">
+                <div class="btn-group" role="group" aria-label="Form buttons">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-floppy"></i> Save File
+                    </button>
+                    <button type="reset" class="btn btn-outline-warning">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div>
+        </div>
+    </div>
+</div>
+
+{/let}
